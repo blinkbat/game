@@ -41,7 +41,6 @@ initBoard = () => {
 createWalls = () => {
     // for each row
     board.forEach( row => {
-
         // for each cell in that row
         row.forEach( cell => {
 
@@ -78,13 +77,58 @@ createWalls = () => {
             // chance to create wall
             if( rand > 90 ){
                 cell.content = "#";
+            }
 
+        });
+    });
+
+};
+
+randomStart = () => {
+
+    const randY = Math.floor( Math.random() * 10 );
+    const randX = Math.floor( Math.random() * 10 );
+
+    if( board[ randY ][ randX ].content !== "#"
+    && board[ randY ][ randX ].content !== "$" ) {
+        
+        board[ randY ][ randX ].content = "@";
+
+        // assign player coords
+        playerLoc.y = randY;
+        playerLoc.x = randX;
+        playerLoc.content = "@";
+        // assign player HP
+        playerLoc.hp = 20;
+
+        console.log( "player loc: " + playerLoc );
+
+    } else {
+        randomStart();
+    }
+};
+
+
+
+generateFoes = () => {
+
+    let foeCount = 0;
+
+    // for each cell
+    board.forEach( row => {
+        row.forEach( cell => {
+
+            const rand = Math.floor( Math.random() * 100 );
+
+            if( rand > 90 && foeCount < 9 ) {
+                cell.content = "$";
+                cell.hp = Math.floor( Math.random() * 10 ) + 1;
+                foeCount++;
             }
 
         });
 
     });
-
 };
 
 
@@ -95,7 +139,6 @@ renderBoard = () => {
 
     // for each cell
     board.forEach( row => {
-
         row.forEach( cell => {
 
             let cellClass = "cell";
@@ -114,8 +157,6 @@ renderBoard = () => {
             }
 
         });
-
-
     });
 
 };
@@ -126,6 +167,10 @@ renderBoard = () => {
 initBoard();
 
 createWalls();
+
+generateFoes();
+
+randomStart();
 
 renderBoard();
 
