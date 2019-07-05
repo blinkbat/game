@@ -3,7 +3,7 @@
 // initialize board vars
 const board = [];
 let row = [];
-let playerLoc = [];
+let playerLoc = {};
 
 // grab from DOM
 const root = $( "#root" );
@@ -95,13 +95,13 @@ randomStart = () => {
         board[ randY ][ randX ].content = "@";
 
         // assign player coords
-        playerLoc.y = randY;
         playerLoc.x = randX;
+        playerLoc.y = randY;
         playerLoc.content = "@";
         // assign player HP
         playerLoc.hp = 20;
 
-        console.log( "player loc: " + playerLoc );
+        console.log( playerLoc );
 
     } else {
         randomStart();
@@ -165,17 +165,71 @@ renderBoard = () => {
 
 // fire our funcs to init
 initBoard();
-
 createWalls();
-
 generateFoes();
 
 randomStart();
 
+// initial render
 renderBoard();
 
 
+//////////////////////////////////// CRAZY CODE FOR INPUT
 
+
+// listen for keys
+$( document ).on( "keypress", event => {
+        
+    const key = event.key;
+
+    let target = {};
+    let current = { x: playerLoc.x, y: playerLoc.y };
+    let dir = "";
+
+    switch( key ) {
+
+        case "a":
+            target = board[ playerLoc.y ][ playerLoc.x - 1 ];
+            dir = "west";
+            break;
+        case "w":
+            target = board[ playerLoc.y - 1 ][ playerLoc.x ];
+            dir = "north";
+            break;
+        case "s":
+            target = board[ playerLoc.y + 1 ][ playerLoc.x ];
+            dir = "south";
+            break;
+        case "d":
+            target = board[ playerLoc.y ][ playerLoc.x + 1 ];
+            dir = "east";
+            break;
+    
+    }
+
+    if( 
+    target.x >= 0 && target.y >= 0
+    && target.x <= 9 && target.y <= 9
+
+    && target.content !== "#"
+    && target.content !== "$" 
+    ) {
+
+        board[ target.y ][ target.x ].content = "@";
+        board[ current.y ][ current.x ].content = dot;
+
+        playerLoc.x = target.x;
+        playerLoc.y = target.y;
+
+        log.prepend( `You skulk ${ dir }. <br />` );
+
+        renderBoard();
+
+    } else {
+        log.prepend( "Ouch! <br />" );
+    }
+
+});
 
 
 
