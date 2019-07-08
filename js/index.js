@@ -3,11 +3,12 @@
 // initialize board vars
 const board = [];
 let row = [];
-let playerLoc = {};
+const playerLoc = {};
 
 // grab from DOM
 const root = $( "#root" );
 const log = $( "#log" );
+const char = $( "#char" );
 
 // html entities
 const dot = "&middot;";
@@ -188,6 +189,9 @@ $( document ).on( "keypress", event => {
 
     switch( key ) {
 
+        // TODO: DETERMINE AND ENFORCE BOUNDS OF AREA
+        // CURRENTLY RETURNS UNDEFINED WHEN OUT-OF-BOUNDS
+
         case "a":
             target = board[ playerLoc.y ][ playerLoc.x - 1 ];
             dir = "west";
@@ -225,8 +229,24 @@ $( document ).on( "keypress", event => {
 
         renderBoard();
 
+    } else if( target.content === "$" ) {
+        
+        let attack = Math.floor( Math.random() * 5 + 1);
+
+        target.hp -= attack;
+        log.prepend( `You strike the foe for ${ attack } damage! <br/>` );
+
+            if( target.hp < 1 ) {
+                target.content = dot;
+                log.prepend( `The enemy explodes into bloody goop. Gross! <br/>` );
+            }
+        
+        renderBoard();
+
+
     } else {
-        log.prepend( "Ouch! <br />" );
+
+        log.prepend( "The wall is unyielding. <br />" );
     }
 
 });

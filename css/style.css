@@ -14,7 +14,7 @@ body {
 
 #log { 
     margin-left: 30px; color: rgba(255,255,255, .6); vertical-align: top;
-    min-width: 20%; height: 30vh; overflow: hidden; line-height: 1.8rem;
+    width: 30%; height: 30vh; overflow: hidden; line-height: 1.8rem;
     font-size: 14px;
 }
 
