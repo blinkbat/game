@@ -1,7 +1,7 @@
 
 
 // initialize board vars
-const board = [];
+let board = [];
 let row = [];
 const playerLoc = {};
 
@@ -14,6 +14,9 @@ const char = $( "#char" );
 const dot = "&middot;";
 
 initBoard = () => {
+
+    board = [];
+
     // create 10 rows
     for( i = 0; i < 10; i++ ) {
 
@@ -164,15 +167,18 @@ renderBoard = () => {
 
 
 
-// fire our funcs to init
-initBoard();
-createWalls();
-generateFoes();
+resetGame = () => {
+    initBoard();
+    createWalls();
+    generateFoes();
 
-randomStart();
+    randomStart();
 
-// initial render
-renderBoard();
+    // initial render
+    renderBoard();
+    $( "#char" ).text( playerLoc.hp );
+}
+
 
 
 //////////////////////////////////// CRAZY CODE FOR INPUT
@@ -231,7 +237,7 @@ $( document ).on( "keypress", event => {
 
     } else if( target.content === "$" ) {
         
-        let attack = Math.floor( Math.random() * 5 + 1);
+        let attack = Math.floor( Math.random() * 5 + 1 );
 
         target.hp -= attack;
         log.prepend( `You strike the foe for ${ attack } damage! <br/>` );
@@ -239,12 +245,24 @@ $( document ).on( "keypress", event => {
             if( target.hp < 1 ) {
                 target.content = dot;
                 log.prepend( `The enemy explodes into bloody goop. Gross! <br/>` );
+            } else {
+                let counter = Math.floor( Math.random() * 3 + 1 );
+                playerLoc.hp -= counter;
+                log.prepend( `The foe counters for ${counter} damage. Oof! <br/>` );
+
+                if( playerLoc.hp < 1 ) {
+                    alert( "Y O U   D I E D" );
+                    resetGame();
+
+                } else {
+                    $( "#char" ).text( playerLoc.hp );
+                }
             }
         
         renderBoard();
 
 
-    } else {
+    } else if( key === "w" || key === "a" || key === "s" || key === "d" ) {
 
         log.prepend( "The wall is unyielding. <br />" );
     }
@@ -253,8 +271,5 @@ $( document ).on( "keypress", event => {
 
 
 
-
-
-
-
-
+// fire it up
+resetGame();
