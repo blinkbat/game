@@ -99,11 +99,11 @@ randomStart = () => {
         board[ randY ][ randX ].content = "@";
 
         // assign player coords
-        playerLoc.x = randX;
-        playerLoc.y = randY;
-        playerLoc.content = "@";
-        // assign player HP
-        playerLoc.hp = 20;
+        playerLoc.x         = randX;
+        playerLoc.y         = randY;
+        playerLoc.content   = "@";
+        playerLoc.hp        = 20;
+        playerLoc.gold      = 0;
 
         console.log( playerLoc );
 
@@ -125,7 +125,7 @@ generateFoes = () => {
             const rand = Math.floor( Math.random() * 100 );
 
             if( rand > 90 && foeCount < 9 ) {
-                cell.content = "$";
+                cell.content = "&";
                 cell.hp = Math.floor( Math.random() * 10 ) + 1;
                 foeCount++;
             }
@@ -134,6 +134,33 @@ generateFoes = () => {
 
     });
 };
+
+
+
+generateChests = () => {
+
+    let chestCount = 0;
+
+    // for each cell
+    board.forEach( row => {
+        row.forEach( cell => {
+
+            const rand = Math.floor( Math.random() * 100 );
+
+            if( cell.content !== "&" && cell.content !== "#" ) {
+
+                if( rand > 90 && chestCount < 5 ) {
+                    cell.content = "$";
+                    cell.gold = Math.floor( Math.random() * 20 + 1 );
+                    chestCount++;
+                }
+            }
+
+        });
+
+    });
+
+}
 
 
 
@@ -149,7 +176,8 @@ renderBoard = () => {
 
             if( cell.content === "#" ) { cellClass = "wall"; }
             if( cell.content === "@" ) { cellClass = "player"; }
-            if( cell.content === "$" ) { cellClass = "foe"; }
+            if( cell.content === "&" ) { cellClass = "foe"; }
+            if( cell.content === "$" ) { cellClass = "chest"; }
 
             // if not end of row,
             if( cell.x != 9 ) {
@@ -167,16 +195,45 @@ renderBoard = () => {
 
 
 
+attackTarget = target => {
+
+    let attack = Math.floor( Math.random() * 5 + 1 );
+
+    target.hp -= attack;
+    log.prepend( `You strike the foe for ${ attack } damage! <br/>` );
+
+    if( target.hp < 1 ) {
+        target.content = dot;
+        log.prepend( `The enemy explodes into bloody goop. Gross! <br/>` );
+    } else {
+        let counter = Math.floor( Math.random() * 3 + 1 );
+        playerLoc.hp -= counter;
+        log.prepend( `The foe counters for ${counter} damage. Oof! <br/>` );
+
+        if( playerLoc.hp < 1 ) {
+            alert( "\n--=+   Y O U   D I E D   +=--\n" );
+            resetGame();
+
+        } else {
+            $( "#char" ).text( playerLoc.hp );
+        }
+    }
+}
+
+
+
 resetGame = () => {
     initBoard();
     createWalls();
     generateFoes();
+    generateChests();
 
     randomStart();
 
     // initial render
     renderBoard();
     $( "#char" ).text( playerLoc.hp );
+    $( "#gold" ).text( playerLoc.gold );
 }
 
 
@@ -222,7 +279,8 @@ $( document ).on( "keypress", event => {
     && target.x <= 9 && target.y <= 9
 
     && target.content !== "#"
-    && target.content !== "$" 
+    && target.content !== "&" 
+    && target.content !== "$"
     ) {
 
         board[ target.y ][ target.x ].content = "@";
@@ -235,32 +293,20 @@ $( document ).on( "keypress", event => {
 
         renderBoard();
 
-    } else if( target.content === "$" ) {
+    } else if( target.content === "&" ) {
         
-        let attack = Math.floor( Math.random() * 5 + 1 );
-
-        target.hp -= attack;
-        log.prepend( `You strike the foe for ${ attack } damage! <br/>` );
-
-            if( target.hp < 1 ) {
-                target.content = dot;
-                log.prepend( `The enemy explodes into bloody goop. Gross! <br/>` );
-            } else {
-                let counter = Math.floor( Math.random() * 3 + 1 );
-                playerLoc.hp -= counter;
-                log.prepend( `The foe counters for ${counter} damage. Oof! <br/>` );
-
-                if( playerLoc.hp < 1 ) {
-                    alert( "Y O U   D I E D" );
-                    resetGame();
-
-                } else {
-                    $( "#char" ).text( playerLoc.hp );
-                }
-            }
+        attackTarget( target );
         
         renderBoard();
 
+    } else if( target.content === "$" ) {
+
+        target.content = dot;
+        playerLoc.gold += target.gold;
+        $( "#gold" ).text( playerLoc.gold );
+        log.prepend( `You open the chest. Got ${ target.gold } gold! <br/>` );
+
+        renderBoard();
 
     } else if( key === "w" || key === "a" || key === "s" || key === "d" ) {
 
